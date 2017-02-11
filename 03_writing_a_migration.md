@@ -58,9 +58,18 @@ DO
 
 All of the information necessary for the migration to run exists in a single location:  your migration script.
 
-## Drop incompatible irreplacable objects
+## Drop incompatible irreplaceable objects
 
 Explain more...
 
-## Don't depend on irreplaceable objects
+## Avoid depending on irreplaceable objects
 
+Consider the following scenario:
+
+1. Migration #1 is written and deployed
+2. A few months pass and Migration #2 is written and deployed
+3. A developer who has a database still on version 0 runs Migration #1 and #2 back to back to get up to date with the current version
+
+If Migration #1 drops a view, it's not seen as a problem because the migration will rebuild all views as part of the migration process.  When Migration #2 is run, it too rebuilds all of the views.  For the unlucky developer, Migration #1 drops a view that Migration #2 depends on, but the rebuilding of the views does not happen until after Migration #2 runs.
+
+If you really need to use irreplaceable objects as part of your migration, make sure they exist before you do.
