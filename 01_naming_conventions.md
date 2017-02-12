@@ -1,6 +1,6 @@
 # Table naming convetions
 
-There are 2 basic camps when it comes to naming tables:  singular or plural.  Which should you use?  Whichever one you like best!  There are compelling reasons for both choices.
+There are 2 basic camps when it comes to naming tables:  singular or plural.  Which should you use?  Whichever one you like best!  There are compelling reasons for both choices.  Just make sure you stay consistent throughout the entire project.
 
 ## A case for Singular table names
 
@@ -25,10 +25,34 @@ SELECT (('one', 'two') :: FOO).foo;
 
 ## A case for Plural table names
 
-A table represents a collection of objects, so it seems natural for the collection (ie. the table) to be plural.  By using the plural version for the table name, a type that uses the singular version can be created later to use as a function's argument type.
+A table represents a collection of objects, so it seems natural for the collection (ie. the table) to be plural.  By using the plural version for the table name, a type that uses the singular version can be created later to use for other things, such as a function's argument type.  While you can also do this with the table's type, adding a composite type is more convenient when complete object is composed from multiple tables (especially if you have a one-to-many relationship as illustrated below).
 
 ```sql
--- TODO: add example
+CREATE TEMPORARY TABLE foos (
+	foo_id SERIAL NOT NULL,
+	title TEXT NOT NULL,
+	PRIMARY KEY (foo_id)
+);
+
+CREATE TEMPORARY TABLE foo_categories (
+	foo_id INT NOT NULL,
+	category TEXT NOT NULL,
+	PRIMARY KEY (foo_id, category),
+	FOREIGN KEY (foo_id) REFERENCES foos (foo_id)
+);
+
+CREATE TYPE foo AS (
+	id INT,
+	title TEXT,
+	categories TEXT[]
+);
+
+CREATE FUNCTION update_foo(data FOO) RETURNS VOID AS $$
+BEGIN
+	-- do stuff with data
+END;
+$$ LANGUAGE plpgsql VOLATILE;
+
 ```
 
 # Column naming conventions
